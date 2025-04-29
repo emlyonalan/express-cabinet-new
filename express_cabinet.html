@@ -3,27 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>快递柜系统</title>
+    <title>智能快递柜系统</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #f0f2f5;
         }
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             background: white;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .cabinet {
+        .cabinet-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cabinet-header h1 {
+            color: #1890ff;
+            margin: 0;
+        }
+        .cabinet-header p {
+            color: #666;
+            margin: 10px 0 0;
+        }
+        .operation-area {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .scan-area, .code-area {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .scan-area {
+            margin-right: 20px;
+        }
+        .qrcode-container {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #qrcode {
+            width: 100%;
+            height: 100%;
+        }
+        .code-input {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .cell-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin: 20px 0;
         }
         .cell {
             border: 2px solid #ddd;
@@ -32,40 +82,29 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            background: white;
         }
         .cell.open {
-            border-color: #4CAF50;
-            background-color: #f0f9f0;
+            border-color: #1890ff;
+            background: #e6f7ff;
         }
-        .input-group {
-            margin: 20px 0;
+        .cell.locked {
+            border-color: #ff4d4f;
+            background: #fff2f0;
         }
-        .input-group input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            width: 100%;
+        .cell-number {
+            font-size: 20px;
+            font-weight: bold;
             margin-bottom: 10px;
         }
-        .input-group button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
+        .cell-status {
+            color: #666;
+            font-size: 14px;
         }
-        .input-group button:hover {
-            background-color: #45a049;
-        }
-        .scan-button {
+        .status-message {
             text-align: center;
             margin: 20px 0;
-        }
-        .scan-button button {
-            padding: 15px 30px;
-            font-size: 16px;
+            color: #666;
         }
         .note {
             text-align: center;
@@ -73,71 +112,152 @@
             margin-top: 30px;
             font-size: 14px;
         }
+        button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #40a9ff;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>快递柜系统</h1>
-        
-        <div class="scan-button">
-            <button onclick="scanQRCode()">扫码取件</button>
+        <div class="cabinet-header">
+            <h1>智能快递柜系统</h1>
+            <p>提供便捷的取件服务</p>
         </div>
 
-        <div class="input-group">
-            <input type="text" id="codeInput" placeholder="请输入3位取件码" maxlength="3">
-            <button onclick="openCellWithCode()">输入取件码</button>
+        <div class="operation-area">
+            <div class="scan-area">
+                <h2>扫码取件</h2>
+                <div class="qrcode-container">
+                    <canvas id="qrcode"></canvas>
+                </div>
+                <button onclick="scanQRCode()">扫码开柜</button>
+            </div>
+
+            <div class="code-area">
+                <h2>输入取件码</h2>
+                <input type="text" id="codeInput" class="code-input" placeholder="请输入6位取件码" maxlength="6">
+                <button onclick="validateCode()">验证取件码</button>
+            </div>
         </div>
 
-        <div class="cabinet">
-            <div class="cell" onclick="toggleCell(1)">1</div>
-            <div class="cell" onclick="toggleCell(2)">2</div>
-            <div class="cell" onclick="toggleCell(3)">3</div>
-            <div class="cell" onclick="toggleCell(4)">4</div>
-            <div class="cell" onclick="toggleCell(5)">5</div>
-            <div class="cell" onclick="toggleCell(6)">6</div>
-            <div class="cell" onclick="toggleCell(7)">7</div>
-            <div class="cell" onclick="toggleCell(8)">8</div>
-            <div class="cell" onclick="toggleCell(9)">9</div>
-            <div class="cell" onclick="toggleCell(10)">10</div>
-            <div class="cell" onclick="toggleCell(11)">11</div>
-            <div class="cell" onclick="toggleCell(12)">12</div>
+        <div class="status-message" id="statusMessage"></div>
+
+        <div class="cell-grid">
+            <div class="cell" onclick="toggleCell(1)">
+                <div class="cell-number">A1</div>
+                <div class="cell-status">空</div>
+            </div>
+            <div class="cell" onclick="toggleCell(2)">
+                <div class="cell-number">A2</div>
+                <div class="cell-status">有快递</div>
+            </div>
+            <div class="cell" onclick="toggleCell(3)">
+                <div class="cell-number">A3</div>
+                <div class="cell-status">有快递</div>
+            </div>
+            <div class="cell" onclick="toggleCell(4)">
+                <div class="cell-number">A4</div>
+                <div class="cell-status">空</div>
+            </div>
+            <div class="cell" onclick="toggleCell(5)">
+                <div class="cell-number">B1</div>
+                <div class="cell-status">空</div>
+            </div>
+            <div class="cell" onclick="toggleCell(6)">
+                <div class="cell-number">B2</div>
+                <div class="cell-status">空</div>
+            </div>
+            <div class="cell" onclick="toggleCell(7)">
+                <div class="cell-number">B3</div>
+                <div class="cell-status">空</div>
+            </div>
+            <div class="cell" onclick="toggleCell(8)">
+                <div class="cell-number">B4</div>
+                <div class="cell-status">空</div>
+            </div>
         </div>
 
         <div class="note">
-            你可以扫码或者输入取件码来提取快递。
+            你可以通过扫码或输入取件码来提取快递
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@1.0.0/qrcode.min.js"></script>
     <script>
-        // 模拟柜格状态
-        const cellStates = Array(12).fill(false);
+        // 生成二维码
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            width: 200,
+            height: 200,
+            text: "https://emlyonalan.github.io/express-cabinet/?cell=A2"
+        });
 
-        function toggleCell(index) {
-            cellStates[index - 1] = !cellStates[index - 1];
-            const cell = document.querySelector(`.cabinet > :nth-child(${index})`);
-            cell.classList.toggle('open', cellStates[index - 1]);
-            console.log(`柜格 ${index} 已${cellStates[index - 1] ? '打开' : '关闭'}`);
-        }
+        // 柜格状态
+        const cellStates = Array(8).fill(false);
+        const cellStatus = [
+            '空', '有快递', '有快递', '空',
+            '空', '空', '空', '空'
+        ];
 
+        // 扫码取件
         function scanQRCode() {
-            // 模拟扫码功能
-            const randomCell = Math.floor(Math.random() * 12) + 1;
-            toggleCell(randomCell);
-            alert(`扫描成功！柜格 ${randomCell} 已打开`);
+            const url = new URL(window.location.href);
+            const cell = url.searchParams.get('cell');
+            if (cell === 'A2') {
+                const index = 2; // A2的索引是2
+                toggleCell(index);
+                statusMessage.textContent = '扫码成功！柜格 A2 已打开';
+            } else {
+                statusMessage.textContent = '无效的二维码';
+            }
         }
 
-        function openCellWithCode() {
+        // 验证取件码
+        function validateCode() {
             const code = document.getElementById('codeInput').value;
-            if (code.length !== 3) {
-                alert('请输入3位数字取件码');
+            if (code.length !== 6) {
+                statusMessage.textContent = '请输入6位数字取件码';
                 return;
             }
-            
-            // 这里可以添加实际的验证逻辑
-            const cellNumber = parseInt(code) % 12 + 1;
-            toggleCell(cellNumber);
-            alert(`取件码验证成功！柜格 ${cellNumber} 已打开`);
+
+            // 只有A3柜格的验证码是888888
+            if (code === '888888') {
+                const index = 3; // A3的索引是3
+                toggleCell(index);
+                statusMessage.textContent = '取件码验证成功！柜格 A3 已打开';
+                document.getElementById('codeInput').value = '';
+            } else {
+                statusMessage.textContent = '取件码错误';
+            }
         }
+
+        // 切换柜格状态
+        function toggleCell(index) {
+            if (cellStatus[index - 1] === '空') {
+                statusMessage.textContent = '该柜格为空';
+                return;
+            }
+
+            cellStates[index - 1] = !cellStates[index - 1];
+            const cell = document.querySelector(`.cell-grid > :nth-child(${index})`);
+            cell.classList.toggle('open', cellStates[index - 1]);
+            cellStatus[index - 1] = cellStates[index - 1] ? '已打开' : '有快递';
+            cell.querySelector('.cell-status').textContent = cellStatus[index - 1];
+        }
+
+        // 初始化
+        document.getElementById('codeInput').addEventListener('input', () => {
+            document.querySelector('button').disabled = document.getElementById('codeInput').value.length !== 6;
+        });
     </script>
 </body>
 </html>
