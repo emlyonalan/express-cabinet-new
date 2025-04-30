@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>吉速兔无人物流车</title>
+    <title>吉速兔无人物流车快递柜</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -18,6 +18,60 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .cabinet-header {
+                padding: 20px 0;
+            }
+            
+            .operation-area {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .scan-area, .code-area {
+                flex: none;
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .qrcode-container {
+                width: 100%;
+                height: auto;
+                min-height: 200px;
+            }
+            
+            .cell-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .cell {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .cell-number {
+                font-size: 18px;
+            }
+            
+            .code-input {
+                font-size: 18px;
+                padding: 12px;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 16px;
+                width: 100%;
+            }
         }
         .cabinet-header {
             text-align: center;
@@ -45,6 +99,60 @@
         }
         .scan-area {
             margin-right: 20px;
+        }
+        
+        .qrcode-container {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .code-input {
+            width: 100%;
+            padding: 10px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 24px;
+        }
+        
+        button {
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #40a9ff;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .operation-area {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .scan-area, .code-area {
+                flex: none;
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .scan-area {
+                margin-right: 0;
+            }
         }
         .qrcode-container {
             width: 100%;
@@ -83,6 +191,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             background: white;
+            font-size: 16px;
         }
         .cell.open {
             border-color: #1890ff;
@@ -93,13 +202,29 @@
             background: #fff2f0;
         }
         .cell-number {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
             margin-bottom: 10px;
         }
         .cell-status {
             color: #666;
-            font-size: 14px;
+            font-size: 16px;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .cell {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .cell-number {
+                font-size: 18px;
+            }
+            
+            .cell-status {
+                font-size: 14px;
+            }
         }
         .status-message {
             text-align: center;
@@ -130,15 +255,15 @@
 <body>
     <div class="container">
         <div class="cabinet-header">
-            <h1>吉速兔无人物流车</h1>
-            <p>智能快递柜系统</p>
+            <h1>吉速兔无人物流车快递柜</h1>
+            <p>提供便捷的取件服务</p>
         </div>
 
         <div class="operation-area">
             <div class="scan-area">
                 <h2>扫码取件</h2>
                 <div class="qrcode-container">
-                    <canvas id="qrcode"></canvas>
+                    <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=http://localhost:8080/express_cabinet.html?cell=A2" alt="取件二维码">
                 </div>
                 <button onclick="scanQRCode()">扫码开柜</button>
             </div>
@@ -185,55 +310,48 @@
                 <div class="cell-number">B4</div>
                 <div class="cell-status">空</div>
             </div>
-            <div class="cell" onclick="toggleCell(9)">
-                <div class="cell-number">C1</div>
-                <div class="cell-status">空</div>
-            </div>
-            <div class="cell" onclick="toggleCell(10)">
-                <div class="cell-number">C2</div>
-                <div class="cell-status">空</div>
-            </div>
-            <div class="cell" onclick="toggleCell(11)">
-                <div class="cell-number">C3</div>
-                <div class="cell-status">空</div>
-            </div>
-            <div class="cell" onclick="toggleCell(12)">
-                <div class="cell-number">C4</div>
-                <div class="cell-status">空</div>
-            </div>
         </div>
 
         <div class="note">
-            你可以扫码或者输入取件码获取你的快递
+            你可以通过扫码或输入取件码来提取快递
+        </div>
+
+        <!-- 用户协议和联系方式 -->
+        <div class="footer">
+            <div class="agreement">
+                <input type="checkbox" id="agreement" onchange="toggleAgreement()">
+                <label for="agreement">我已阅读并同意《用户协议》</label>
+            </div>
+            <div class="contact">
+                商家电话：18305956715
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs2@1.0.0/qrcode.min.js"></script>
     <script>
-        // 确保二维码容器存在
-        document.addEventListener('DOMContentLoaded', function() {
-            // 创建二维码
-            const qrcode = new QRCode(document.getElementById("qrcode"), {
-                text: "https://emlyonalan.github.io/express-cabinet-new/?cell=A2",
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+        // 检查二维码图片是否加载成功
+        const qrcodeImg = document.getElementById('qrcode');
+        if (qrcodeImg) {
+            qrcodeImg.onload = function() {
+                console.log('二维码图片加载成功');
+            };
+            qrcodeImg.onerror = function() {
+                console.error('二维码图片加载失败');
+                qrcodeImg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACt...'; // 一个简单的占位图片
+            };
+        }
 
-            // 确保二维码容器有正确的样式
-            const qrcodeContainer = document.querySelector('.qrcode-container');
-            if (qrcodeContainer) {
-                qrcodeContainer.style.display = 'block';
-            }
-        });
+        // 用户协议状态
+        function toggleAgreement() {
+            const agreement = document.getElementById('agreement');
+            const status = agreement.checked;
+            console.log('用户协议状态:', status);
+        }
 
         // 柜格状态
-        const cellStates = Array(12).fill(false);
+        const cellStates = Array(8).fill(false);
         const cellStatus = [
             '空', '有快递', '有快递', '空',
-            '空', '空', '空', '空',
             '空', '空', '空', '空'
         ];
 
@@ -261,20 +379,8 @@
             // 只有A3柜格的验证码是888888
             if (code === '888888') {
                 const index = 3; // A3的索引是3
-                
-                // 显示取件成功弹窗
-                alert('取件成功！请取走您的快递');
-                
-                // 更新柜格状态为空
-                cellStatus[index - 1] = '空';
-                const cell = document.querySelector(`.cell-grid > :nth-child(${index})`);
-                cell.querySelector('.cell-status').textContent = '空';
-                
-                // 关闭柜格
-                cellStates[index - 1] = false;
-                cell.classList.remove('open');
-                
-                statusMessage.textContent = '取件成功！柜格 A3 已清空';
+                toggleCell(index);
+                statusMessage.textContent = '取件码验证成功！柜格 A3 已打开';
                 document.getElementById('codeInput').value = '';
             } else {
                 statusMessage.textContent = '取件码错误';
